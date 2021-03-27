@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">ReadText</string>
+    <string name="select_file">Select File</string>
+    <string name="last_read">Last Read</string>
+    <string name="key_position">Scroll Position</string>
+    <string name="key_uri">File URI</string>
+    <string name="go_to">go to</string>
+    <string name="cancel">Cancel</string>
+</resources>
