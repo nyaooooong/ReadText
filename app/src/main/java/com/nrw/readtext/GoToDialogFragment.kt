@@ -17,6 +17,7 @@ class GoToDialogFragment : DialogFragment() {
      * Each method passes the DialogFragment in case the host needs to query it. */
     interface GotoDialogListener {
         fun onDialogPositiveClick(dialog: DialogFragment, position: String)
+        fun getMaxLineCount():String;
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -24,24 +25,24 @@ class GoToDialogFragment : DialogFragment() {
             val builder = AlertDialog.Builder(it)
             // Get the layout inflater
             val inflater = requireActivity().layoutInflater;
-
+            val view = inflater.inflate(R.layout.dialog_goto, null);
+            view.findViewById<EditText>(R.id.goto_position).hint = listener.getMaxLineCount()
             // Inflate and set the layout for the dialog
             // Pass null as the parent view because its going in the dialog layout
-            builder.setView(inflater.inflate(R.layout.dialog_goto, null))
+            builder.setView(view)
                     // Add action buttons
-                    .setPositiveButton(R.string.go_to,
-                            DialogInterface.OnClickListener { dialog, id ->
-                                val position = getDialog()!!.findViewById<EditText>(R.id.goto_position).text.toString()
+                    .setPositiveButton(R.string.go_to, DialogInterface.OnClickListener { _, _ ->
+                                val position = this.dialog!!.findViewById<EditText>(R.id.goto_position).text.toString()
                                 listener.onDialogPositiveClick(this, position)
                             })
-                    .setNegativeButton(R.string.cancel,
-                            DialogInterface.OnClickListener { dialog, id ->
-                                getDialog()?.cancel()
-                            })
+                    .setNegativeButton(R.string.cancel, DialogInterface.OnClickListener { _, _ -> this.dialog?.cancel() })
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
     override fun onAttach(context: Context) {
         super.onAttach(context)
         // Verify that the host activity implements the callback interface
@@ -50,9 +51,7 @@ class GoToDialogFragment : DialogFragment() {
             listener = context as GotoDialogListener
         } catch (e: ClassCastException) {
             // The activity doesn't implement the interface, throw exception
-            throw ClassCastException((context.toString() +
-                    " must implement NoticeDialogListener"))
+            throw ClassCastException((context.toString() + " must implement NoticeDialogListener"))
         }
     }
-
 }

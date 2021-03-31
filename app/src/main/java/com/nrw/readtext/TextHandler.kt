@@ -14,6 +14,10 @@ import org.mozilla.universalchardet.UniversalDetector
 
 
 class TextHandler(context: Context) {
+    var total_viewline_count: Int;
+    var current_viewline_content: String;
+    var current_viewline_index: Int;
+
     private val context: Context = context;
     private val contentResolver: ContentResolver = context.contentResolver
     private var encoding: String;
@@ -26,6 +30,9 @@ class TextHandler(context: Context) {
         this.encoding = "UTF-8"
         this.textName = ""
         this.textLength = 0;
+        this.current_viewline_content = "";
+        this.current_viewline_index = 0;
+        this.total_viewline_count = 0;
     }
 
     companion object {

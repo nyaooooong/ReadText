@@ -2,6 +2,7 @@ package com.nrw.readtext
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
@@ -25,7 +26,6 @@ class ScrollingActivity : AppCompatActivity(), TextToSpeech.OnInitListener, GoTo
     private lateinit var ttsWorker: TtsHandler;
     private lateinit var textHandler: TextHandler;
     private var position: Int = 0;
-    private var max_position: Int = 0;
 
     companion object {
         internal const val REQUEST_CODE = 0
@@ -48,9 +48,8 @@ class ScrollingActivity : AppCompatActivity(), TextToSpeech.OnInitListener, GoTo
                 })
         mainTextScroll = findViewById<NestedScrollView>(R.id.main_text_scroll);
         mainTextScroll.setOnScrollChangeListener { view, x, y, oldx, oldy ->
-            position = y;
-            /* y == mainTextScroll.computeVerticalScrollOffset() is current position
-             * mainTextScroll.computeVerticalScrollRange() is size of all contents. It is not mainTextScroll.getMaxScrollAmount()
+            position = y; //y == mainTextScroll.computeVerticalScrollOffset()
+             /* mainTextScroll.computeVerticalScrollRange() is size of all contents. It is not mainTextScroll.getMaxScrollAmount()
              * mainTextScroll.computeVerticalScrollExtent() is size of screen
              */
             // Snackbar can have only one action. if you want to add more action, use dialog. but it is annoying for user.
@@ -178,13 +177,19 @@ class ScrollingActivity : AppCompatActivity(), TextToSpeech.OnInitListener, GoTo
     }
 
     override fun onDialogPositiveClick(dialog: DialogFragment, position: String) {
-        this.position = position.toInt()
-        findViewById<NestedScrollView>(R.id.main_text_scroll).scrollTo(0, this.position)
+        var rect: Rect = Rect();
+        val lineBound = findViewById<TextView>(R.id.main_text).getLineBounds(position.toInt(), rect);
+        findViewById<NestedScrollView>(R.id.main_text_scroll).scrollTo(0, lineBound)
+        findViewById<TextView>(R.id.main_text).getLineBounds(1, rect);
+    }
+
+    override fun getMaxLineCount(): String {
+        return textHandler.total_viewline_count.toString();
     }
 
     override fun onGlobalLayout() {
+        textHandler.total_viewline_count = findViewById<TextView>(R.id.main_text).getLineCount();
         findViewById<NestedScrollView>(R.id.main_text_scroll).scrollTo(0, position)
-        Log.i(TAG, "Vertical:" + mainTextScroll.computeVerticalScrollRange())
         mainTextScroll.viewTreeObserver.removeOnGlobalLayoutListener(this)
     }
 }
